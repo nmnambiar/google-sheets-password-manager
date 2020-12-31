@@ -1,17 +1,20 @@
+// Original Source: https://shahidh.in/blog/2019/01/26/building-a-shared-password-manager-on-google-sheets/
+
 // These columns are mandatory.
 var 
-  COL_NAME = 0,
-  COL_URL = 1,
-  COL_USERNAME = 2,
-  COL_PASSWORD = 3;
+  COL_SERIALNUMBER = 0,
+  COL_NAME = 1,
+  COL_URL = 2,
+  COL_USERNAME = 3,
+  COL_PASSWORD = 4;
 
 // onOpen is executed when the sheet is opened.
 // adds the Password Manager menu to the sheet.
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Password Manager')
-    .addItem('Decrypt password', 'openDecryptUI')
     .addItem('Add new password', 'openAddNewEntryUI')
+    .addItem('Decrypt password', 'openDecryptUI')
     .addItem('Initialize sheet', 'initializeSheet')
     .addToUi();
 }
@@ -41,7 +44,7 @@ function openAddNewEntryUI() {
 // initializeSheet adds four column labels to the sheet.
 function initializeSheet() {
   var sheet = SpreadsheetApp.getActiveSheet();
-  sheet.appendRow(["Name", "URL", "Username", "Password"]);
+  sheet.appendRow(["Serial No", "Name", "URL", "Username", "Password"]);
 }
 
 // createNewEntry gets a form object form the frontend dialog and saves it
@@ -50,8 +53,12 @@ function initializeSheet() {
 function createNewEntry(form) {
   blob = Utilities.base64Encode(form.password); 
   var sheet = SpreadsheetApp.getActiveSheet();
-  sheet.appendRow([form.name, form.url, form.username, blob]);
-}
+  
+  // get the number of rows
+  // set the Serial number and other data for the new row
+  var aVals = ss.getRange("A1:A").getValues();
+  var aLast = aVals.filter(String).length;
+  sheet.appendRow([aLast+1,form.name, form.url, form.username, blob]);}
 
 // getPassword returns the base64 decoded encrypted password object (json)
 // from the current record.
